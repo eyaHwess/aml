@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MongoDB Search</title>
+</head>
+<body>
+  <h1>Search for a Person</h1>
+  <form id="searchForm">
+    <label for="prenom">First Name:</label>
+    <input type="text" id="prenom" name="prenom" required>
+        
+    <label for="nom">Last Name:</label>
+    <input type="text" id="nom" name="nom" required>
+    
+    <button type="submit">Search</button>
+  </form>
+  <div id="searchResults"></div>
+
+  <script>
+    document.getElementById('searchForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+      const prenom = document.getElementById('prenom').value;
+      const nom = document.getElementById('nom').value;
+      const searchQuery = `prenom=${encodeURIComponent(prenom)}&nom=${encodeURIComponent(nom)}`;
+      
+      fetch(`/search?${searchQuery}`)
+        .then(response => response.json())
+        .then(data => {
+          const resultsContainer = document.getElementById('searchResults');
+          resultsContainer.innerHTML = '<h2>Search Results:</h2>';
+          if (data.length > 0) {
+            data.forEach(item => {
+              resultsContainer.innerHTML += `<p>${JSON.stringify(item)}</p>`;
+            });
+          } else {
+            resultsContainer.innerHTML += '<p>No matching data found.</p>';
+          }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+  </script>
+</body>
+</html>

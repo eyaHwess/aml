@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MongoDB Search</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th, td {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    body {
+      padding-top: 56px; /* Adjusted to account for fixed navbar */
+    }
+
+    h1 {
+      margin-top: 20px; /* Add margin to top of the search header */
+    }
+
+    .navbar .navbar-brand {
+      margin-right: auto; /* Pushes the brand to the left */
+    }
+
+    .navbar .logout-btn {
+      background-color: #dc3545; /* Red background color */
+      color: white;
+    }
+    
+  </style>
+  <script>
+    // Disable going back in browser history
+    window.addEventListener('popstate', function () {
+      window.location.href = '/'; // Redirect to the login page
+    });
+  </script>
+  
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+  <a class="navbar-brand" >Welcome <%= username %></a>
+  <a href="/user_profile" class="btn btn-outline-info my-2 my-sm-0 ml-2 mr-3">
+    <i class="fas fa-user"></i> Update Profile
+  </a>
+  <form action="/logout" method="GET" class="form-inline my-2 my-lg-0">
+    <button type="submit" class="btn btn-outline-danger my-2 my-sm-0 logout-btn">Logout</button>
+  </form>
+</nav>
+
+<div class="container">
+  <h1>Search for a Person</h1>
+  <form id="searchForm">
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="prenom">First Name:</label>
+        <input type="text" id="prenom" name="prenom" class="form-control" required>
+      </div>
+      <div class="form-group col-md-6">
+        <label for="nom">Last Name:</label>
+        <input type="text" id="nom" name="nom" class="form-control" required>
+      </div>
+      <div class="form-group col-md-4">
+        <label for="cin">CIN:</label>
+        <input type="text" id="cin" name="cin" class="form-control" required>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+  <div id="searchResults"></div>
+</div>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+  document.getElementById('searchForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+    const prenom = document.getElementById('prenom').value;
+    const nom = document.getElementById('nom').value;
+    const cin = document.getElementById('cin').value; // Get the value of the cin field
+    const searchQuery = `prenom=${encodeURIComponent(prenom)}&nom=${encodeURIComponent(nom)}&cin=${encodeURIComponent(cin)}`;
+    fetch(`/search?${searchQuery}`)
+      .then(response => response.json())
+      .then(data => {
+        const resultsContainer = document.getElementById('searchResults');
+        resultsContainer.innerHTML = '<h2>Search Results:</h2>';
+        if (data.length > 0) {
+          // Clear previous results
+          resultsContainer.innerHTML = '';
+
+          // Create a table
+          const table = document.createElement('table');
+          table.classList.add('table'); // Add Bootstrap table class
+
+          // Create table header
+          const headerRow = table.createTHead().insertRow();
+          Object.keys(data[0].item).forEach(key => {
+            // Skip 'id' field
+            if (key !== '_id') {
+              const th = document.createElement('th');
+              th.textContent = key.charAt(0).toUpperCase() + key.slice(1);
+              headerRow.appendChild(th);
+            }
+          });
+          const similarityTh = document.createElement('th');
+          similarityTh.textContent = 'Similarity (%)';
+          headerRow.appendChild(similarityTh);
+
+          // Insert new results into the table
+          data.forEach(result => {
+            const row = table.insertRow();
+            Object.entries(result.item).forEach(([key, value]) => {
+              // Skip 'id' field
+              if (key !== '_id') {
+                const cell = row.insertCell();
+                cell.textContent = value;
+              }
+            });
+            const similarityCell = row.insertCell();
+            similarityCell.textContent = result.similarity.toFixed(2);
+          });
+
+          // Append the table to the results container
+          resultsContainer.appendChild(table);
+        } else {
+          resultsContainer.innerHTML += '<p>No matching data found.</p>';
+        }
+      })
+      .catch(error => console.error('Error:', error));
+  });
+</script>
+
+</body>
+</html>
