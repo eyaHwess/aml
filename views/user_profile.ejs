@@ -64,7 +64,13 @@
         position: relative;
         left: 270px;
     }
-    
+    #saveC{
+        margin-left: 36%;
+    }
+    #home{
+        position: relative;
+        left: 0px;
+    }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" />
 
@@ -76,24 +82,20 @@
         </a>
     </nav>
     <div class="container-xl px-4 mt-4">
-        <!-- Account page navigation-->
-        <nav class="nav nav-borders">
-            <a class="prof" target="__blank">Profile</a>
-        </nav>
-        <hr class="mt-0 mb-4">
+       
+        <hr class="mt-4 mb-4">
         <div class="row">
             <div class="col-xl-2">
                 
             </div>
-            <div class="col-xl-8 ">
-                <!-- Account details card-->
+            <div class="col-xl-8 mt-4 ">
                 <div class="card mb-4">
                     <div class="card-header">Account Details 
-                        <button class="btn btn-primary" type="button" onclick="saveChanges()"> Save Changes </button>
+                        <button id="saveC" class="btn btn-primary" type="button" onclick="saveChanges()"> Save Changes </button>
                     </div>
-                    
                     <div class="card-body">
                         <form id="accountForm">
+                            <div id="errorMessage" class="alert alert-danger" role="alert" style="display: none;"></div>
                             <div class="mb-3">
                                 <label class="small mb-1" for="inputEmailAddress">Email address</label>
                                 <input class="form-control" id="inputEmailAddress" type="email" value="<%= email %>" disabled>
@@ -127,7 +129,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- Save changes button-->
                         </form>
                     </div>
                 </div>
@@ -137,61 +138,72 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
   <script>
-    // Set initial state: all fields are disabled
-    document.getElementById('inputUsername').disabled = true;
+        document.getElementById('inputUsername').disabled = true;
     document.getElementById('inputLastPassword').disabled = true;
     document.getElementById('NewPassword').disabled = true;
     document.getElementById('ConfirmNewPassword').disabled = true;
 
     function toggleUsername() {
-        // Toggle the disabled attribute of the username field
-        document.getElementById('inputUsername').disabled = !document.getElementById('inputUsername').disabled;
-    }
+            document.getElementById('inputUsername').disabled = !document.getElementById('inputUsername').disabled;
+        }
 
     function togglePasswordFields() {
-        // Toggle the display property of the password fields
         var passwordFields = document.getElementById('passwordFields');
         passwordFields.style.display = passwordFields.style.display === 'none' ? 'block' : 'none';
-        
-        // Toggle the disabled attribute of the password fields
+
         var passwordInputs = document.querySelectorAll('#passwordFields input');
         passwordInputs.forEach(function (input) {
             input.disabled = !input.disabled;
         });
     }
-    function saveChanges() {
-    // Collect the values from the form
-    const username = document.getElementById('inputUsername').value;
-    const lastPassword = document.getElementById('inputLastPassword').value;
-    const newPassword = document.getElementById('NewPassword').value;
-    const confirmNewPassword = document.getElementById('ConfirmNewPassword').value;
 
-    // Make a POST request to your server to save changes
-    fetch('/user_profile', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    username: username,
-    lastPassword: lastPassword,
-    newPassword: newPassword,
-    confirmNewPassword: confirmNewPassword,
-  }),
-})
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    return response.json();
-  })
-  .then(data => {
-    console.log('Changes saved successfully:', data);
-  })
-  .catch(error => {
-    console.error('Error saving changes:', error);
-  });
-  }
+        function saveChanges() {
+            const username = document.getElementById('inputUsername').value;
+            const lastPassword = document.getElementById('inputLastPassword').value;
+            const newPassword = document.getElementById('NewPassword').value;
+            const confirmNewPassword = document.getElementById('ConfirmNewPassword').value;
+
+            fetch('/user_profile', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  username: username,
+                  lastPassword: lastPassword,
+                  newPassword: newPassword,
+                  confirmNewPassword: confirmNewPassword,
+                }),
+              })
+              .then(response => {
+                if (!response.ok) {
+                  // Parse the error response JSON and handle accordingly
+                  return response.json().then(error => {
+                    throw new Error(error.error || 'An error occurred while saving changes');
+                  });
+                }
+                return response.json();
+              })
+              .then(data => {
+                // Handle success response
+                console.log('Changes saved successfully:', data);
+                // Redirect or perform any other action upon success
+                window.location.href = 'home'
+              })
+              .catch(error => {
+                console.error('Error saving changes:', error);
+                // Display the error message to the user
+                const errorMessageElement = document.getElementById('errorMessage');
+                errorMessageElement.innerHTML = `<div class="alert alert-danger" role="alert">${error.message || 'An error occurred while saving changes'}</div>`;
+              });
+        }
+
+        window.addEventListener('load', (event) => {
+            document.getElementById('inputUsername').disabled = true;
+            document.getElementById('inputLastPassword').disabled = true;
+            document.getElementById('NewPassword').disabled = true;
+            document.getElementById('ConfirmNewPassword').disabled = true;
+        });
 </script>
 </body>
 </html>

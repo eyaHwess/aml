@@ -44,7 +44,7 @@
   <script>
     // Disable going back in browser history
     window.addEventListener('popstate', function () {
-      window.location.href = '/'; // Redirect to the login page
+    window.location.href = '/'; // Redirect to the login page
     });
   </script>
   
@@ -93,7 +93,7 @@
     event.preventDefault();
     const prenom = document.getElementById('prenom').value;
     const nom = document.getElementById('nom').value;
-    const cin = document.getElementById('cin').value; // Get the value of the cin field
+    const cin = document.getElementById('cin').value;
     const searchQuery = `prenom=${encodeURIComponent(prenom)}&nom=${encodeURIComponent(nom)}&cin=${encodeURIComponent(cin)}`;
     fetch(`/search?${searchQuery}`)
       .then(response => response.json())
@@ -106,7 +106,7 @@
 
           // Create a table
           const table = document.createElement('table');
-          table.classList.add('table'); // Add Bootstrap table class
+          table.classList.add('table'); 
 
           // Create table header
           const headerRow = table.createTHead().insertRow();

@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Login Page</title>
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
@@ -14,7 +13,7 @@
         .page2 {
             background-color: rgb(191, 193, 190);
             width: 40%;
-            height: 400px;
+            height: fit-content;
             margin: 15% auto;
             padding: 20px;
             border-radius: 10px;
@@ -33,6 +32,11 @@
 <div class="container">
     <div class="page2">
         <h1 class="text-center">Login Page</h1>
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-danger" role="alert">
+                <%= error %>
+            </div>
+        <% } %>
         <form action="/login" method="POST">
             <div class="form-group">
                 <label for="username">Username:</label>
@@ -46,14 +50,12 @@
                 <button type="submit" class="btn btn-primary btn-sm">Login</button>
             </div>
         </form>
-        <!-- Add Signup Button -->
         <div class="text-center mt-3">
             <a href="/signup" class="btn btn-secondary btn-sm">Signup</a>
         </div>
     </div>
 </div>
 
-<!-- Bootstrap JS and dependencies -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
